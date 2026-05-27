@@ -74,6 +74,16 @@ with lib;
         };
       };
 
+      ttydExtraArgs = mkOption {
+        description = "Extra arguments to pass to ttyd";
+        type = types.listOf types.str;
+        default = [ ];
+        example = [
+          "-t fontFamily=\"JetBrainsMono Nerd Font,monospace\""
+          ''-t theme={"foreground":"#cdd6f4","background":"#1e1e2e"}''
+        ];
+      };
+
       enableConfigReplace = mkEnableOption "vm_config.json replace (WARNING ALPHA MAY BRICK INSTALL)";
       useGenericKernel = mkEnableOption "use latest standard kernel";
       enableGraphics = mkEnableOption "graphics support (Weston + gfxstream)" // { default = true; };
@@ -146,7 +156,7 @@ with lib;
 
     systemd.services.ttyd = {
       serviceConfig = {
-        ExecStart = "${extraPkgs.ttyd}/bin/ttyd --ssl --ssl-cert /etc/ttyd/server.crt --ssl-key /etc/ttyd/server.key --ssl-ca /mnt/internal/ca.crt -t disableLeaveAlert=true -W ${config.services.ttyd.entrypoint} -f ${cfg.defaultUser}";
+        ExecStart = "${extraPkgs.ttyd}/bin/ttyd --ssl --ssl-cert /etc/ttyd/server.crt --ssl-key /etc/ttyd/server.key --ssl-ca /mnt/internal/ca.crt -t disableLeaveAlert=true${lib.concatMapStrings (arg: " " + lib.escapeShellArg arg) cfg.ttydExtraArgs} -W ${config.services.ttyd.entrypoint} -f ${cfg.defaultUser}";
         Type = "simple";
         Restart = "always";
         User = "root";
