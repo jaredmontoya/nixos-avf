@@ -187,11 +187,10 @@ with lib;
       # Sometimes during startup, Terminal will discover only the IPv6 address
       # and then only whitelist that one for GRPC.
       # Remove once this is solved. See #5
-      ipv6 = false;
-      publish = {
-        enable = true;
-        userServices = true;
-      };
+      settings.server.use-ipv6 = false;
+      settings.publish."disable-publishing" = false;
+      settings.publish."disable-user-service-publishing" = false;
+      settings.publish."publish-addresses" = true;
     };
 
     system.build.avfImage = pkgs.callPackage ./finish.nix {
@@ -221,7 +220,6 @@ with lib;
 
     boot.growPartition = true;
     boot.loader.systemd-boot.enable = true;
-    boot.initrd.systemd.enable = true;
     boot.loader.systemd-boot.extraInstallCommands = mkIf (cfg.enableConfigReplace) ''
       # update vm_config if on live machine
       if [ -e /mnt/internal/linux ]; then
@@ -414,7 +412,7 @@ with lib;
     systemd.network.enable = true;
     networking.useNetworkd = true;
     networking.dhcpcd.enable = false;
-    services.resolved.dnssec = "false";
+    services.resolved.settings.Resolve.DNSSEC = "false";
     networking.useDHCP = true;
     networking.firewall.enable = true; # default
     networking.nftables.enable = true;
